@@ -1,0 +1,11 @@
+Build.PL
+Changes
+LICENSE
+MANIFEST
+MANIFEST.SKIP
+META.yml
+README
+dist.ini
+lib/Sub/Spec/HTTP.pm
+t/release-pod-coverage.t
+t/release-pod-syntax.t
