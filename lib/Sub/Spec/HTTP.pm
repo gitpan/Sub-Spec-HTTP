@@ -1,6 +1,6 @@
 package Sub::Spec::HTTP;
 
-our $VERSION = '1.0.0'; # VERSION
+our $VERSION = '1.0.1'; # VERSION
 
 1;
 # ABSTRACT: Specification for sub and spec operations over HTTP
@@ -14,7 +14,7 @@ Sub::Spec::HTTP - Specification for sub and spec operations over HTTP
 
 =head1 VERSION
 
-version 1.0.0
+version 1.0.1
 
 =head1 DESCRIPTION
 
@@ -33,8 +33,8 @@ by servers and clients written in Perl or other languages.
 =item * SS request
 
 An SS request (SS being a short for Sub::Spec) is a hash containing some keys
-like: C<command>, C<sub>, C<module>, C<args>, C<resp_format>, C<log_level>,
-C<mark_log>. See L</"SS REQUEST">
+like: C<command>, C<uri>, C<args>, C<resp_format>, C<log_level>, C<mark_log>.
+See L</"SS REQUEST">
 
 =item * SS server
 
@@ -46,7 +46,7 @@ L<Sub::Spec::HTTP::Server> is the de facto Perl server implementation.
 
 An SS client is a library or program which sends requests to an SS server over
 HTTP. It should provide some transparency to its user, creating some level of
-illusion that the user is accessing a local sub/spec. L<Sub::Spec::HTTP::Client>
+illusion that the user is accessing a local sub/spec. L<Sub::Spec::ByURI::http>
 is the de facto Perl client implementation.
 
 =back
@@ -66,46 +66,42 @@ commands are written below. A server should implement some or all of the listed
 commands. It SHOULD return HTTP 502 status if a command is unknown. It can
 implement new commands if deemed necessary.
 
-'about' command, to request information about the server. For this command, no
-other request key is necessart. The server MUST return a hashref like this:
+'about' command, to request information about the server and the request itself.
+For this command, no other request key is necessart. The server MUST return a
+hashref like this:
 
  {
   version        => [1, 0], # Sub::Spec::HTTP specification version
   input_formats  => [qw/json phps yaml/], # supported input formats
   output_formats => [qw/json pretty nopretty
                         yaml phps html/], # supported output formats
-  # other extra keys are allowed
+  # other extra keys are allowed, like ...
+  server_url     => 'http://localhost:5000/api/',
  }
 
-'call' command, to call a subroutine and return its result. For this command, at
-least 'module' and 'sub' are required. 'args' is also required, but will default
-to {} (empty hash) if not specified.
+'call' command, to call a subroutine and return its result. For this command,
+request C<uri> must be specified and contains at least module and subroutine
+name.
 
 'list_commands' command, to list known commands. No other request key is
 necessary.
 
 'list_mods' command, to list known modules. No other request key is necessary.
 
-'list_subs' command, to list known subroutines in a module. Request key 'module'
-is required.
+'list_subs' command, to list known subroutines in a module. Request key C<uri>
+must be specified and contains at least module name.
 
 'usage' command, to show subroutine's usage (like list of arguments and
-description for each). Request keys 'sub' and 'module' are required.
+description for each). Request key C<uri> is required and must contain at least
+module and subroutine name.
 
-'spec' command, to request spec for a subroutine. Request keys 'sub' and
-'module' are required.
+'spec' command, to request spec for a subroutine. Request key C<uri> is required
+and must contain at least module and subroutine name.
 
-=item * module => STR
+=item * uri => STR
 
-To specify module name. All groups of nonalphanumeric characters SHOULD be
-converted to server's language, for example: Foo.Bar_Baz should be converted to
-Foo::Bar_Baz by the Perl server. If invalid module name is specified, server
-MUST return HTTP 400.
-
-=item * sub => STR
-
-To specify subroutine name. If invalid subroutine name is specified, server MUST
-return 400.
+Specify module and/or sub and/or arguments. See L<Sub::Spec::URI> for more
+details. If invalid URI is found, server MUST return 400.
 
 =item * args => HASH (default {})
 
@@ -113,7 +109,7 @@ To specify arguments. Must be a hashref, or the server MUST return 400.
 
 =item * output_format => STR
 
-To specify response format. Known formats are 'yaml', 'json', 'php', 'pretty',
+To specify response format. Known formats are 'yaml', 'json', 'phps', 'pretty',
 'simple', 'html'. A server can support more formats, but at least it MUST
 support 'json'.
 
@@ -144,9 +140,9 @@ execute the SS requests for clients.
 
 Server at least MUST parse SS request keys from HTTP C<X-SS-Req-*> request
 headers, e.g. C<X-SS-Req-Command> header for setting the C<command> request key.
-In addition, the server MUST parse C<X-SS-Req-*-j> for JSON-encoded value, e.g.
+In addition, the server MUST parse C<X-SS-Req-*-j-> for JSON-encoded value, e.g.
 
- X-SS-Req-Args-j: {arg1:"val1",arg2:[1,2,3]}
+ X-SS-Req-Args-j-: {arg1:"val1",arg2:[1,2,3]}
 
 should set C<args> request key to C<{arg1 => "val1", arg2 => [1, 2, 3]}>.
 
@@ -159,15 +155,14 @@ for example, Sub::Spec::HTTP::Server allows setting C<module> and C<sub> from
 URI path, and arguments (as well as other SS request keys, using C<-ss-req-*>
 syntax) from request variables. For example:
 
- http://HOST/api/MOD::SUBMOD/FUNC?arg1=val1&arg2:j=[1,2]&-ss-req-command=spec
+ http://HOST/api/MOD::SUBMOD/FUNC?a1=1&a2:j=[1,2]&-ss-req-command=spec
 
 will result in the following SS request:
 
  {
   command => 'spec',
-  module  => 'MOD::SUBMOD',
-  sub     => 'FUNC',
-  args    => {arg1=>'val1', arg2=>[1, 2]},
+  uri     => 'pm://MOD::SUBMOD/FUNC',
+  args    => {a1=>1, a2=>[1, 2]},
  }
 
 =head1 SS CLIENT

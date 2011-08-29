@@ -18,4 +18,4 @@ requires:
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-HTTP/
   repository: http://github.com/sharyanto/perl-Sub-Spec-HTTP
-version: 1.0.0
+version: 1.0.1

@@ -1,5 +1,15 @@
 Revision history for Sub::Spec::HTTP
 
+1.0.1    2011-08-29
+
+         [INCOMPATIBLE CHANGES]
+
+         - SS request key 'module' and 'sub' are replaced with 'uri'.
+
+         - JSON-encoded X-SS-Req-* HTTP headers are named X-SS-Req-*-j- instead
+           of X-SS-Req-*-j
+
+
 1.0.0    2011-08-28
 
          - First release.
