@@ -2,7 +2,7 @@ NAME
     Sub::Spec::HTTP - Specification for sub and spec operations over HTTP
 
 VERSION
-    version 1.0.1
+    version 1.0.2
 
 DESCRIPTION
     This is a specification for calling remote subroutines, or doing other
@@ -16,7 +16,7 @@ TERMINOLOGIES
     *   SS request
 
         An SS request (SS being a short for Sub::Spec) is a hash containing
-        some keys like: "command", "uri", "args", "resp_format",
+        some keys like: "command", "uri", "args", "output_format",
         "log_level", "mark_log". See "SS REQUEST"
 
     *   SS server
@@ -31,7 +31,7 @@ TERMINOLOGIES
         An SS client is a library or program which sends requests to an SS
         server over HTTP. It should provide some transparency to its user,
         creating some level of illusion that the user is accessing a local
-        sub/spec. Sub::Spec::ByURI::http is the de facto Perl client
+        sub/spec. Sub::Spec::URI::http is the de facto Perl client
         implementation.
 
 SS REQUEST
@@ -41,14 +41,14 @@ SS REQUEST
 
     *   command => STR
 
-        Always required. Default command is 'call'. The list of all
-        currently known commands are written below. A server should
-        implement some or all of the listed commands. It SHOULD return HTTP
-        502 status if a command is unknown. It can implement new commands if
-        deemed necessary.
+        If not specified, default is 'call'. The list of all currently known
+        commands is written below. A server should implement some or all of
+        the listed commands. At the very least it MUST implement 'about' and
+        'call'. It SHOULD return HTTP 502 status if a command is unknown. It
+        can implement new commands if deemed necessary.
 
         'about' command, to request information about the server and the
-        request itself. For this command, no other request key is necessart.
+        request itself. For this command, no other request key is necessary.
         The server MUST return a hashref like this:
 
          {
@@ -58,6 +58,7 @@ SS REQUEST
                                 yaml phps html/], # supported output formats
           # other extra keys are allowed, like ...
           server_url     => 'http://localhost:5000/api/',
+          commands       => [...], # commands known by this server
          }
 
         'call' command, to call a subroutine and return its result. For this
@@ -114,8 +115,8 @@ SS REQUEST
         response.
 
 SS SERVER
-    An SS server listens to HTTP requests, parsing them into SS requests,
-    and execute the SS requests for clients.
+    An SS server listens to HTTP requests, parses them into SS requests, and
+    executes the SS requests for clients.
 
   Parsing SS request from HTTP request
     Server at least MUST parse SS request keys from HTTP "X-SS-Req-*"

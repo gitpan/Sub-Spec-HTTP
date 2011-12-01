@@ -1,6 +1,6 @@
 package Sub::Spec::HTTP;
 
-our $VERSION = '1.0.1'; # VERSION
+our $VERSION = '1.0.2'; # VERSION
 
 1;
 # ABSTRACT: Specification for sub and spec operations over HTTP
@@ -14,7 +14,7 @@ Sub::Spec::HTTP - Specification for sub and spec operations over HTTP
 
 =head1 VERSION
 
-version 1.0.1
+version 1.0.2
 
 =head1 DESCRIPTION
 
@@ -33,7 +33,7 @@ by servers and clients written in Perl or other languages.
 =item * SS request
 
 An SS request (SS being a short for Sub::Spec) is a hash containing some keys
-like: C<command>, C<uri>, C<args>, C<resp_format>, C<log_level>, C<mark_log>.
+like: C<command>, C<uri>, C<args>, C<output_format>, C<log_level>, C<mark_log>.
 See L</"SS REQUEST">
 
 =item * SS server
@@ -46,8 +46,8 @@ L<Sub::Spec::HTTP::Server> is the de facto Perl server implementation.
 
 An SS client is a library or program which sends requests to an SS server over
 HTTP. It should provide some transparency to its user, creating some level of
-illusion that the user is accessing a local sub/spec. L<Sub::Spec::ByURI::http>
-is the de facto Perl client implementation.
+illusion that the user is accessing a local sub/spec. L<Sub::Spec::URI::http> is
+the de facto Perl client implementation.
 
 =back
 
@@ -61,13 +61,14 @@ all keys are required for each request.
 
 =item * command => STR
 
-Always required. Default command is 'call'. The list of all currently known
-commands are written below. A server should implement some or all of the listed
-commands. It SHOULD return HTTP 502 status if a command is unknown. It can
-implement new commands if deemed necessary.
+If not specified, default is 'call'. The list of all currently known commands is
+written below. A server should implement some or all of the listed commands. At
+the very least it MUST implement 'about' and 'call'. It SHOULD return HTTP 502
+status if a command is unknown. It can implement new commands if deemed
+necessary.
 
 'about' command, to request information about the server and the request itself.
-For this command, no other request key is necessart. The server MUST return a
+For this command, no other request key is necessary. The server MUST return a
 hashref like this:
 
  {
@@ -77,6 +78,7 @@ hashref like this:
                         yaml phps html/], # supported output formats
   # other extra keys are allowed, like ...
   server_url     => 'http://localhost:5000/api/',
+  commands       => [...], # commands known by this server
  }
 
 'call' command, to call a subroutine and return its result. For this command,
@@ -133,8 +135,8 @@ clients can parse/separate log message from response.
 
 =head1 SS SERVER
 
-An SS server listens to HTTP requests, parsing them into SS requests, and
-execute the SS requests for clients.
+An SS server listens to HTTP requests, parses them into SS requests, and
+executes the SS requests for clients.
 
 =head2 Parsing SS request from HTTP request
 
