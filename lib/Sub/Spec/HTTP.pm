@@ -1,6 +1,6 @@
 package Sub::Spec::HTTP;
 
-our $VERSION = '1.0.2'; # VERSION
+our $VERSION = '1.0.3'; # VERSION
 
 1;
 # ABSTRACT: Specification for sub and spec operations over HTTP
@@ -14,9 +14,14 @@ Sub::Spec::HTTP - Specification for sub and spec operations over HTTP
 
 =head1 VERSION
 
-version 1.0.2
+version 1.0.3
 
 =head1 DESCRIPTION
+
+B<NOTICE>: The Sub::Spec and Sub::Spec::HTTP specifications are deprecated as of
+Jan 2012. L<Rinci> and L<Riap> are the new specifications to replace them. Rinci
+is about 95% compatible with Sub::Spec, but corrects a few issues and is more
+generic.
 
 This is a specification for calling remote subroutines, or doing other
 sub-/spec-related operations over HTTP. The specification should be implemented
@@ -179,7 +184,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Steven Haryanto.
+This software is copyright (c) 2012 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
